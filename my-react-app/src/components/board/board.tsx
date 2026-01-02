@@ -2,32 +2,7 @@ import React from "react";
 import Square from "../square/square";
 import "./board.css";
 
-const Board: React.FC = () => {
-  const [squares, setSquares] = React.useState<Array<string | null>>(
-    Array(9).fill(null)
-  );
-  const [xIsNext, setXIsNext] = React.useState<boolean>(true);
-  // const [status, setStatus] = React.useState<string>("Next player: X");
-
-  function handleClick(index: number) {
-    if (squares[index] || calculateWinner(squares)) {
-      return;
-    }
-
-    console.log("clicked!");
-    const newSquares = squares.slice();
-    newSquares[index] = xIsNext ? "X" : "O";
-    setSquares(newSquares);
-    setXIsNext(!xIsNext);
-  }
-
-  function handleResetClick() {
-    setSquares(Array(9).fill(null));
-    setXIsNext(true);
-    // setStatus("Next player: X");
-  }
-
-  function calculateWinner(squares: Array<string | null>): string | null {
+function calculateWinner(squares: Array<string | null>): string | null {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -36,7 +11,7 @@ const Board: React.FC = () => {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
@@ -47,20 +22,41 @@ const Board: React.FC = () => {
   return null;
 }
 
-const winner = calculateWinner(squares);
+const Board: React.FC = ({ xIsNext, squares, onPlay, onReset }) => {
+  function handleClick(index: number) {
+    if (squares[index] || calculateWinner(squares)) {
+      return;
+    }
+
+    console.log("clicked!");
+    const newSquares = squares.slice();
+    newSquares[index] = xIsNext ? "X" : "O";
+    onPlay(newSquares);
+  }
+
+  function handleResetClick() {
+    onReset();
+  }
+
+  const winner = calculateWinner(squares);
   let status;
   if (winner) {
-    status = 'Winner: ' + winner;
+    status = "Winner: " + winner;
   } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+    status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
   return (
     <div className="board">
-      <div className="board-header"><h2>Board Component</h2> <button className="reset" onClick={handleResetClick}>Reset</button></div>
+      <div className="board-header">
+        <h2>Board Component</h2>{" "}
+        <button className="reset" onClick={handleResetClick}>
+          Reset
+        </button>
+      </div>
       {/* Add your board content here */}
 
-   <div className={`status ${winner ? "winner" : ""}`}>{status}</div>
+      <div className={`status ${winner ? "winner" : ""}`}>{status}</div>
       <div className="board-container">
         <div className="board-row">
           <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
